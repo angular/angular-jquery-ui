@@ -1,6 +1,7 @@
 <!doctype html>
 <html xmlns:ng="http://angularjs.org/" xmlns:jqui="http://jqueryui.com/">
 <head>
+  <meta charset="utf-8">
   <title>jqui:draggable directive</title>
   <link rel="stylesheet" href="css/app.css">
   <script src="lib/jquery/jquery.1.4.4.min.js"></script>
@@ -13,21 +14,21 @@
 
   <h1>jQuery UI Drag and Drop Demo</h1>
 
-  <div jqui:drop-accept="acceptToken(list1, $token)" 
+  <div jqui:drop-accept="acceptToken(list1, $token)"
        jqui:drop-commit="commitToken(list1, $token)">
     <h2>Drag these boxes</h2>
-    <div ng:repeat="item in list1" 
-         jqui:drag-start="dragStart(item, list1)" 
+    <div ng:repeat="item in list1"
+         jqui:drag-start="dragStart(item, list1)"
          jqui:drag-end="dragEnd(item)">{{item.name}} {{item.dragging}}</div>
   </div>
 
-  <div jqui:drop-accept="acceptToken(list2, $token)" 
+  <div jqui:drop-accept="acceptToken(list2, $token)"
        jqui:drop-commit="commitToken(list2, $token)">
     <h2>Drop them here</h2>
-    <div ng:repeat="item in list2" 
-         jqui:drag-start="dragStart(item, list2)" 
+    <div ng:repeat="item in list2"
+         jqui:drag-start="dragStart(item, list2)"
          jqui:drag-end="dragEnd(item)">{{item.name}} {{item.dragging}}</div>
   </div>
-  
+
 </body>
 </html>

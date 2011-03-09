@@ -56,6 +56,24 @@
  */
 
 
+/**
+ * @ngdoc overview
+ * @name angular.mock
+ * @namespace Namespace for all built-in angular mocks.
+ *
+ * @description
+ * `angular.mock` is a namespace for all built-in mocks that ship with angular and automatically
+ * replace real services if `angular-mocks.js` file is loaded after `angular.js` and before any
+ * tests.
+ */
+angular.mock = {};
+
+
+/**
+ * @workInProgress
+ * @ngdoc service
+ * @name angular.mock.service.$browser
+ */
 function MockBrowser() {
   var self = this,
       expectations = {},
@@ -63,7 +81,25 @@ function MockBrowser() {
 
   this.isMock = true;
   self.url = "http://server";
+  self.lastUrl = self.url; // used by url polling fn
   self.pollFns = [];
+
+
+  // register url polling fn
+
+  self.onHashChange = function(listener) {
+    self.pollFns.push(
+      function() {
+        if (self.lastUrl != self.url) {
+          self.lastUrl = self.url;
+          listener();
+        }
+      }
+    );
+
+    return listener;
+  };
+
 
   self.xhr = function(method, url, data, callback) {
     if (angular.isFunction(data)) {
@@ -106,6 +142,10 @@ function MockBrowser() {
   self.xhr.expectPUT    = angular.bind(self, self.xhr.expect, 'PUT');
   self.xhr.expectJSON   = angular.bind(self, self.xhr.expect, 'JSON');
   self.xhr.flush = function() {
+    if (requests.length == 0) {
+      throw new Error("No xhr requests to be flushed!");
+    }
+
     while(requests.length) {
       requests.pop()();
     }
@@ -126,7 +166,7 @@ function MockBrowser() {
 MockBrowser.prototype = {
 
   poll: function poll(){
-    angular.foreach(this.pollFns, function(pollFn){
+    angular.forEach(this.pollFns, function(pollFn){
       pollFn();
     });
   },
@@ -173,6 +213,54 @@ angular.service('$browser', function(){
 
 
 /**
+ * @workInProgress
+ * @ngdoc service
+ * @name angular.mock.service.$exceptionHandler
+ *
+ * @description
+ * Mock implementation of {@link angular.service.$exceptionHandler} that rethrows any error passed
+ * into `$exceptionHandler`. If any errors are are passed into the handler in tests, it typically
+ * means that there is a bug in the application or test, so this mock will make these tests fail.
+ *
+ * See {@link angular.mock} for more info on angular mocks.
+ */
+angular.service('$exceptionHandler', function(e) {
+  return function(e) {throw e;};
+});
+
+
+/**
+ * @workInProgress
+ * @ngdoc service
+ * @name angular.mock.service.$log
+ *
+ * @description
+ * Mock implementation of {@link angular.service.$log} that gathers all logged messages in arrays
+ * (one array per logging level). These arrays are exposed as `logs` property of each of the
+ * level-specific log function, e.g. for level `error` the array is exposed as `$log.error.logs`.
+ *
+ * See {@link angular.mock} for more info on angular mocks.
+ */
+angular.service('$log', MockLogFactory);
+
+function MockLogFactory() {
+  var $log = {
+    log: function(){ $log.log.logs.push(arguments); },
+    warn: function(){ $log.warn.logs.push(arguments); },
+    info: function(){ $log.info.logs.push(arguments); },
+    error: function(){ $log.error.logs.push(arguments); }
+  };
+
+  $log.log.logs = [];
+  $log.warn.logs = [];
+  $log.info.logs = [];
+  $log.error.logs = [];
+
+  return $log;
+}
+
+
+/**
  * Mock of the Date type which has its timezone specified via constroctor arg.
  *
  * The main purpose is to create Date-like instances with timezone fixed to the specified timezone
@@ -183,15 +271,6 @@ angular.service('$browser', function(){
  * @param {(number|string)} timestamp Timestamp representing the desired time in *UTC*
  *
  * @example
- * var newYearInBratislava = new TzDate(-1, '2009-12-31T23:00:00Z');
- * newYearInBratislava.getTimezoneOffset() => -60;
- * newYearInBratislava.getFullYear() => 2010;
- * newYearInBratislava.getMonth() => 0;
- * newYearInBratislava.getDate() => 1;
- * newYearInBratislava.getHours() => 0;
- * newYearInBratislava.getMinutes() => 0;
- *
- *
  * !!!! WARNING !!!!!
  * This is not a complete Date object so only methods that were implemented can be called safely.
  * To make matters worse, TzDate instances inherit stuff from Date via a prototype.
@@ -199,6 +278,17 @@ angular.service('$browser', function(){
  * We do our best to intercept calls to "unimplemented" methods, but since the list of methods is
  * incomplete we might be missing some non-standard methods. This can result in errors like:
  * "Date.prototype.foo called on incompatible Object".
+ *
+ * <pre>
+ * var newYearInBratislava = new TzDate(-1, '2009-12-31T23:00:00Z');
+ * newYearInBratislava.getTimezoneOffset() => -60;
+ * newYearInBratislava.getFullYear() => 2010;
+ * newYearInBratislava.getMonth() => 0;
+ * newYearInBratislava.getDate() => 1;
+ * newYearInBratislava.getHours() => 0;
+ * newYearInBratislava.getMinutes() => 0;
+ * </pre>
+ *
  */
 function TzDate(offset, timestamp) {
   if (angular.isString(timestamp)) {
@@ -289,7 +379,7 @@ function TzDate(offset, timestamp) {
       'setYear', 'toDateString', 'toJSON', 'toGMTString', 'toLocaleFormat', 'toLocaleString',
       'toLocaleTimeString', 'toSource', 'toString', 'toTimeString', 'toUTCString', 'valueOf'];
 
-  angular.foreach(unimplementedMethods, function(methodName) {
+  angular.forEach(unimplementedMethods, function(methodName) {
     this[methodName] = function() {
       throw {
         name: "MethodNotImplemented",
