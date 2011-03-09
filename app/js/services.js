@@ -1,23 +1,21 @@
-/* http://docs.angularjs.org/#!angular.service */
-
-/**
- * App service which is responsible for the main configuration of the app.
- */
-angular.service('myAngularApp', function($route, $location, $window) {
-
-  $route.when('/view1', {template: 'partials/partial1.html', controller: MyCtrl1});
-  $route.when('/view2', {template: 'partials/partial2.html', controller: MyCtrl2});
-
-  var self = this;
-
-  $route.onChange(function() {
-    if ($location.hash === '') {
-      $location.updateHash('/view1');
-      self.$eval();
-    } else {
-      $route.current.scope.params = $route.current.params;
-      $window.scrollTo(0,0);
+angular.service('dialog', function($document){
+  var rootScope = this;
+  var body = $document.find('body');
+  return {
+    open: function(title, bodyUrl, Controller){
+      rootScope.$dialog = {
+          scope: rootScope.$new(Controller),
+          src: bodyUrl
+      };
+      var include = $('<ng:include></ng:include');
+      include.attr('scope', '$dialog.scope');
+      include.attr('src', '$dialog.src');
+      var dialog = $('<div></div>');
+      dialog.append(include);
+      dialog.attr('title', title);
+      body.append(dialog);
+      dialog.dialog();
+      angular.compile(include)(rootScope);
     }
-  });
-
-}, {$inject:['$route', '$location', '$window'], $eager: true});
+  };
+});

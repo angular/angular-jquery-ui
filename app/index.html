@@ -4,31 +4,40 @@
   <meta charset="utf-8">
   <title>jqui:draggable directive</title>
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/base/jquery-ui.css" type="text/css" media="all">
   <script src="lib/jquery/jquery.1.4.4.min.js"></script>
   <script src="lib/jquery/jquery-ui.1.8.7.min.js"></script>
   <script src="lib/angular/angular.js" ng:autobind></script>
   <script src="js/controllers.js"></script>
+  <script src="js/services.js"></script>
   <script src="js/jquery-ui-widgets.js"></script>
 </head>
-<body ng:controller="DndDemo" style="display:none" ng:show="true">
+<body style="display:none" ng:show="true">
 
-  <h1>jQuery UI Drag and Drop Demo</h1>
-
-  <div jqui:drop-accept="acceptToken(list1, $token)"
-       jqui:drop-commit="commitToken(list1, $token)">
-    <h2>Drag these boxes</h2>
-    <div ng:repeat="item in list1"
-         jqui:drag-start="dragStart(item, list1)"
-         jqui:drag-end="dragEnd(item)">{{item.name}} {{item.dragging}}</div>
+  <div ng:controller="DialogDemo" >
+    <h1>jQuery UI Dialog</h1>
+    <button ng:click="showDialog()">show dialog</button>
   </div>
 
-  <div jqui:drop-accept="acceptToken(list2, $token)"
-       jqui:drop-commit="commitToken(list2, $token)">
-    <h2>Drop them here</h2>
-    <div ng:repeat="item in list2"
-         jqui:drag-start="dragStart(item, list2)"
-         jqui:drag-end="dragEnd(item)">{{item.name}} {{item.dragging}}</div>
-  </div>
 
+  <div ng:controller="DndDemo" >
+    <h1>jQuery UI Drag and Drop Demo</h1>
+
+    <div jqui:drop-accept="acceptToken(list1, $token)"
+         jqui:drop-commit="commitToken(list1, $token)">
+      <h2>Drag these boxes</h2>
+      <div ng:repeat="item in list1"
+           jqui:drag-start="dragStart(item, list1)"
+           jqui:drag-end="dragEnd(item)">{{item.name}} {{item.dragging}}</div>
+    </div>
+
+    <div jqui:drop-accept="acceptToken(list2, $token)"
+         jqui:drop-commit="commitToken(list2, $token)">
+      <h2>Drop them here</h2>
+      <div ng:repeat="item in list2"
+           jqui:drag-start="dragStart(item, list2)"
+           jqui:drag-end="dragEnd(item)">{{item.name}} {{item.dragging}}</div>
+    </div>
+  </div>
 </body>
 </html>

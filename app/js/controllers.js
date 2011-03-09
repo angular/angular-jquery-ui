@@ -1,3 +1,13 @@
+function DialogDemo(dialog_){
+  this.showDialog = function(){
+    dialog_.open('title', 'partials/dialog.html', DialogCntl);
+  };
+}
+
+function DialogCntl(){
+  this.name = 'world';
+}
+
 function DndDemo() {
   this.list1 = [{name:'one'}, {name:'two'}, {name: 'three', reject: true}, {name: 'four'}];
   this.list2 = [];
@@ -9,7 +19,7 @@ function DndDemo() {
   this.dragEnd = function(item){
     delete item.dragging;
   };
-  
+
   this.acceptToken = function(to, token){
     return token.src != to && !token.item.reject;
   };
