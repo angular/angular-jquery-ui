@@ -15,6 +15,8 @@
   angular.directive('jqui:drag-start', function(_, item){
     var dragStartExp = item.attr('jqui:drag-start') || '';
     var dragEndExp = item.attr('jqui:drag-end') || '';
+    var handle = item.attr('jqui:handle') || false;
+    var axis = item.attr('jqui:axis') || false;
     item.addClass('jqui-dnd-item');
     return function(item){
       var $updateView = this.$root.$eval;
@@ -24,6 +26,8 @@
 
       item.draggable({
         addClass: false,
+        handle: handle,
+        axis: axis,
         start:function(event, ui){
           item.draggable('option', 'revertDuration', 200);
           item.addClass('jqui-dnd-item-dragging');
